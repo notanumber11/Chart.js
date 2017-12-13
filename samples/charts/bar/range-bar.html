@@ -1,0 +1,141 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Stacked Bar Chart</title>
+    <script src="../../../dist/Chart.bundle.js"></script>
+    <script src="../../utils.js"></script>
+    <style>
+    canvas {
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+    }
+    </style>
+</head>
+
+<body>
+    <div>
+        <canvas id="canvas" width="800" height="600"></canvas>
+    </div>
+    <button id="randomizeData">Randomize Data</button>
+    <script>
+        var barChartData = {
+            labels: ["Op1", "Op2", "Op3"],
+            datasets: [
+            	{
+					stack: 'Stack 0',
+					label: 'Hide',
+					backgroundColor: window.chartColors.red,
+					data: [
+						30,
+						50,
+						80
+					]
+            	},
+				{
+					label: 'Id 1',
+					stack: 'Stack 0',
+					backgroundColor: window.chartColors.blue,
+					data: [
+						30,
+						40,
+						50
+					]
+            	},
+				{
+					label: 'Hide',
+					stack: 'Stack 1',
+					backgroundColor: window.chartColors.red,
+					data: [
+						34,
+						56,
+						90
+					]
+				},
+				{
+					label: 'Id 2',
+					stack: 'Stack 1',
+					backgroundColor: window.chartColors.yellow,
+					data: [
+						40,
+						60,
+						100
+					]
+				}
+
+            ]
+
+        };
+        window.onload = function() {
+            var ctx = document.getElementById("canvas").getContext("2d");
+            window.myBar = new Chart(ctx, {
+				type: 'horizontalBar',
+				data: barChartData,
+                options: {
+                    title:{
+                        display:true,
+                        text:"Chart.js Bar Chart - Stacked"
+                    },
+                    tooltips: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    responsive: true,
+					maintainAspectRatio: false,
+                    scales: {
+						xAxes: [{
+							stacked: true,
+                        }],
+                        yAxes: [{
+							barThickness: 30,
+							stacked: true
+                        }]
+                    },
+					legend: {
+						labels: {
+							filter: function(legendItem, data) {
+								var dataset = data.datasets[legendItem.datasetIndex];
+								if(legendItem.datasetIndex!=0 && legendItem.datasetIndex!=2){
+									return !dataset.legendHidden;
+								}
+							}
+						},
+						onClick: function(e, legendItem) {
+
+						}
+					}
+                },
+				plugins: [{
+					beforeUpdate: function(chart, options) {
+						console.log("Updating graph")
+						chart.config.data.datasets["0"].hidden = false
+						chart.config.data.datasets["2"].hidden = false
+					},
+					afterUpdate: function(chart, options) {
+							console.log("Updating graph")
+						chart.config.data.datasets["0"].hidden = true
+						chart.config.data.datasets["2"].hidden = true
+					}
+				}]
+            });
+			window.myBar.config.data.datasets["0"].hidden = true
+			window.myBar.config.data.datasets["2"].hidden = true
+
+
+		};
+
+        document.getElementById('randomizeData').addEventListener('click', function() {
+            barChartData.datasets.forEach(function(dataset, i) {
+                dataset.data = dataset.data.map(function() {
+                    return randomScalingFactor();
+                });
+            });
+            window.myBar.update();
+        });
+
+
+    </script>
+</body>
+
+</html>
